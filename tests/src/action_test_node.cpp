@@ -13,6 +13,12 @@
 
 #include "action_test_node.h"
 #include <string>
+#include <ctime>
+#include <chrono>
+#include <time.h>
+#include <ratio>
+#include <iomanip>
+using namespace std::chrono;
 
 BT::AsyncActionTest::AsyncActionTest(const std::string& name, BT::Duration deadline_ms) :
     AsyncActionNode(name, {})
@@ -20,6 +26,7 @@ BT::AsyncActionTest::AsyncActionTest(const std::string& name, BT::Duration deadl
     boolean_value_ = true;
     time_ = deadline_ms;
     stop_loop_ = false;
+    has_started_ = false;
     tick_count_ = 0;
 }
 
@@ -30,6 +37,14 @@ BT::AsyncActionTest::~AsyncActionTest()
 
 BT::NodeStatus BT::AsyncActionTest::tick()
 {
+
+    has_started_ = true;
+
+    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+
+
+    setStartTimePoint(t2);
+    setStatus(NodeStatus::RUNNING);
     using std::chrono::high_resolution_clock;
     tick_count_++;
     stop_loop_ = false;
@@ -39,6 +54,8 @@ BT::NodeStatus BT::AsyncActionTest::tick()
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
+
+    setStopTimePoint(high_resolution_clock::now());
 
     if (!stop_loop_)
     {
@@ -50,9 +67,18 @@ BT::NodeStatus BT::AsyncActionTest::tick()
     }
 }
 
+
+
 void BT::AsyncActionTest::halt()
 {
     stop_loop_ = true;
+    NodeStatus node_status;
+    do
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        node_status = status();
+    } while (node_status == NodeStatus::RUNNING && has_started_);
+
 }
 
 void BT::AsyncActionTest::setTime(BT::Duration time)
@@ -64,6 +90,37 @@ void BT::AsyncActionTest::setBoolean(bool boolean_value)
 {
     boolean_value_ = boolean_value;
 }
+
+
+void BT::AsyncActionTest::setStartTimePoint(std::chrono::high_resolution_clock::time_point now)
+{
+    std::lock_guard<std::mutex> lock(start_time_mutex_);
+
+    start_time_ = now;
+}
+
+std::chrono::high_resolution_clock::time_point BT::AsyncActionTest::startTimePoint() const
+{
+    std::lock_guard<std::mutex> lock(start_time_mutex_);
+
+    return start_time_;
+}
+
+
+void BT::AsyncActionTest::setStopTimePoint(std::chrono::high_resolution_clock::time_point now)
+{
+    std::lock_guard<std::mutex> lock(stop_time_mutex_);
+
+    stop_time_ = now;
+}
+
+std::chrono::high_resolution_clock::time_point BT::AsyncActionTest::stopTimePoint() const
+{
+    std::lock_guard<std::mutex> lock(stop_time_mutex_);
+
+    return stop_time_;
+}
+
 
 //----------------------------------------------
 

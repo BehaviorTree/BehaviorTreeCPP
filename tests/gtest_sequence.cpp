@@ -327,7 +327,7 @@ TEST_F(ComplexSequenceTest, ComplexSequenceConditions1ToFalse)
     state = root.executeTick();
 
     ASSERT_EQ(NodeStatus::FAILURE, state);
-    ASSERT_EQ(NodeStatus::IDLE, seq_conditions.status());
+    ASSERT_EQ(NodeStatus::FAILURE, seq_conditions.status());
     ASSERT_EQ(NodeStatus::IDLE, condition_1.status());
     ASSERT_EQ(NodeStatus::IDLE, condition_2.status());
     ASSERT_EQ(NodeStatus::IDLE, action_1.status());
@@ -342,7 +342,7 @@ TEST_F(ComplexSequenceTest, ComplexSequenceConditions2ToFalse)
     state = root.executeTick();
 
     ASSERT_EQ(NodeStatus::FAILURE, state);
-    ASSERT_EQ(NodeStatus::IDLE, seq_conditions.status());
+    ASSERT_EQ(NodeStatus::FAILURE, seq_conditions.status());
     ASSERT_EQ(NodeStatus::IDLE, condition_1.status());
     ASSERT_EQ(NodeStatus::IDLE, condition_2.status());
     ASSERT_EQ(NodeStatus::IDLE, action_1.status());
@@ -458,3 +458,4 @@ TEST_F(ComplexSequenceWithMemoryTest, Action1DoneSeq)
     ASSERT_EQ(NodeStatus::IDLE, action_1.status());
     ASSERT_EQ(NodeStatus::IDLE, action_2.status());
 }
+

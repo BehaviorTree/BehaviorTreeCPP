@@ -1,4 +1,4 @@
-/* Copyright (C) 2015-2018 Michele Colledanchise -  All Rights Reserved
+/* Copyright (C) 2015-2019 Michele Colledanchise -  All Rights Reserved
 *  Copyright (C) 2018-2019 Davide Faconti, Eurecat -  All Rights Reserved
 *
 *   Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"),
@@ -21,13 +21,17 @@
 #include "behaviortree_cpp/basic_types.h"
 #include "behaviortree_cpp/blackboard.h"
 #include "behaviortree_cpp/utils/strcat.hpp"
+//#include <behaviortree_cpp/control_node.h>
 
 #ifdef _MSC_VER 
 #pragma warning(disable : 4127) 
 #endif
 
+
 namespace BT
 {
+class ControlNode;
+
 /// This information is used mostly by the XMLParser.
 struct TreeNodeManifest
 {
@@ -147,8 +151,13 @@ class TreeNode
     static StringView stripBlackboardPointer(StringView str);
 
     static Optional<StringView> getRemappedKey(StringView port_name, StringView remapping_value);
+    void set_parent_prt(ControlNode *parent_ptr);
 
-  protected:
+    ControlNode *parent_prt() const;
+    unsigned int child_index() const;
+    void set_child_index(unsigned int child_index);
+
+protected:
     /// Method to be implemented by the user
     virtual BT::NodeStatus tick() = 0;
 
@@ -161,6 +170,9 @@ class TreeNode
     }
 
     void modifyPortsRemapping(const PortsRemapping& new_remapping);
+    unsigned int child_index_;
+
+    ControlNode* parent_prt_ = nullptr;
 
   private:
     const std::string name_;

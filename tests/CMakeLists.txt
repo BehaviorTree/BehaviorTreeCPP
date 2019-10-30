@@ -15,6 +15,10 @@ set(BT_TESTS
   gtest_blackboard.cpp
   navigation_test.cpp
   gtest_subtree.cpp
+  gtest_reactive_sequence.cpp
+  gtest_reactive_fallback.cpp
+  gtest_reactive_tree.cpp
+
 )
 
 if (NOT MINGW)
